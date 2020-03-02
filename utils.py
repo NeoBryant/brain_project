@@ -58,7 +58,7 @@ def label2multichannel(mask, class_num=9):
     h, w = mask.shape[2], mask.shape[3]
     # mask = mask.reshape((240, 240))
     label = np.zeros((batch_size,class_num, 240, 240))
-    
+
     for b in range(batch_size):
         for i in range(class_num):
             for x in range(h):
@@ -71,8 +71,9 @@ def label2multichannel(mask, class_num=9):
     return label
 
 def mask2rgb(mask):
-    """单通道变rgb图
-    输入numpy，输出numpy
+    """单通道变rgb图，以不同颜色显示大脑不同区域
+    输入numpy(1,240,240)/(240,240)
+    输出numpy(3,240,240)
     mask: numpy
     mask.shape (240,240)
     """
@@ -163,71 +164,96 @@ def show_curve(y1s, title='loss'):
 #     plt.savefig('picture/class_{}_mean_variance_threshold_{}.jpg'.format(the_class, count))
 
     
-def bayes_uncertain(image_np, label_np, results, count, class_num):
-    """
-    Keyword arguments:
-    image_np -- 原图
-    label_np -- 标签
-    results -- 同一张图片的不同预测结果, 8通道
-    Return: 预测结果的均值和方差
-    """
-    results = np.array(results)  # list->numpy
-    shape = results.shape
+# def bayes_uncertain(image_np, label_np, results, count, class_num):
+#     """
+#     Keyword arguments:
+#     image_np -- 原图
+#     label_np -- 标签
+#     results -- 同一张图片的不同预测结果, 8通道
+#     Return: 预测结果的均值和方差
+#     """
+#     results = np.array(results)  # list->numpy
+#     shape = results.shape
 
-    result = results.reshape((9,240,240))
+#     result = results.reshape((9,240,240))
     
 
-    # # mean_result
-    # # variance_result
-    # mean_result = np.zeros((shape[1], shape[2]))      # 均值
-    # variance_result = np.zeros((shape[1], shape[2]))  # 方差
+#     # # mean_result
+#     # # variance_result
+#     # mean_result = np.zeros((shape[1], shape[2]))      # 均值
+#     # variance_result = np.zeros((shape[1], shape[2]))  # 方差
 
-    # # 显示保存图片
-    fig, ax = plt.subplots(6, 2, sharey=True, figsize=(14, 36))
+#     # # 显示保存图片
+#     fig, ax = plt.subplots(6, 2, sharey=True, figsize=(14, 36))
 
-    ax[0][0].set_title("Original")
-    ax[0][1].set_title("Ground Truth")
-    ax[1][0].set_title("class 1")
-    ax[1][1].set_title("class 2")
-    ax[2][0].set_title("class 3")
-    ax[2][1].set_title("class 4")
-    ax[3][0].set_title("class 5")
-    ax[3][1].set_title("class 6")
-    ax[4][0].set_title("class 7")
-    ax[4][1].set_title("class 8")
-    ax[5][0].set_title("class 9")
+#     ax[0][0].set_title("Original")
+#     ax[0][1].set_title("Ground Truth")
+#     ax[1][0].set_title("class 1")
+#     ax[1][1].set_title("class 2")
+#     ax[2][0].set_title("class 3")
+#     ax[2][1].set_title("class 4")
+#     ax[3][0].set_title("class 5")
+#     ax[3][1].set_title("class 6")
+#     ax[4][0].set_title("class 7")
+#     ax[4][1].set_title("class 8")
+#     ax[5][0].set_title("class 9")
 
-    # ax00 = ax[0][0].imshow(image_np, aspect="auto", cmap="gray")
-    ax00 = ax[0][0].imshow(image_np, aspect="auto", cmap="gray")
-    ax01 = ax[0][1].imshow(label_np, aspect="auto")
-    ax10 = ax[1][0].imshow(result[0], aspect="auto")
-    ax11 = ax[1][1].imshow(result[1], aspect="auto")
-    ax20 = ax[2][0].imshow(result[2], aspect="auto")
-    ax21 = ax[2][1].imshow(result[3], aspect="auto")
-    ax30 = ax[3][0].imshow(result[4], aspect="auto")
-    ax31 = ax[3][1].imshow(result[5], aspect="auto")
-    ax40 = ax[4][0].imshow(result[6], aspect="auto")
-    ax41 = ax[4][1].imshow(result[7], aspect="auto")
-    ax50 = ax[5][0].imshow(result[8], aspect="auto")
+#     # ax00 = ax[0][0].imshow(image_np, aspect="auto", cmap="gray")
+#     ax00 = ax[0][0].imshow(image_np, aspect="auto", cmap="gray")
+#     ax01 = ax[0][1].imshow(label_np, aspect="auto")
+#     ax10 = ax[1][0].imshow(result[0], aspect="auto")
+#     ax11 = ax[1][1].imshow(result[1], aspect="auto")
+#     ax20 = ax[2][0].imshow(result[2], aspect="auto")
+#     ax21 = ax[2][1].imshow(result[3], aspect="auto")
+#     ax30 = ax[3][0].imshow(result[4], aspect="auto")
+#     ax31 = ax[3][1].imshow(result[5], aspect="auto")
+#     ax40 = ax[4][0].imshow(result[6], aspect="auto")
+#     ax41 = ax[4][1].imshow(result[7], aspect="auto")
+#     ax50 = ax[5][0].imshow(result[8], aspect="auto")
 
-    fig.colorbar(ax00, ax=ax[0][0])
-    fig.colorbar(ax01, ax=ax[0][1])
-    fig.colorbar(ax10, ax=ax[1][0])
-    fig.colorbar(ax11, ax=ax[1][1])
-    fig.colorbar(ax20, ax=ax[2][0])
-    fig.colorbar(ax21, ax=ax[2][1])
-    fig.colorbar(ax30, ax=ax[3][0])
-    fig.colorbar(ax31, ax=ax[3][1])
-    fig.colorbar(ax40, ax=ax[4][0])
-    fig.colorbar(ax41, ax=ax[4][1])
-    fig.colorbar(ax50, ax=ax[5][0])
+#     fig.colorbar(ax00, ax=ax[0][0])
+#     fig.colorbar(ax01, ax=ax[0][1])
+#     fig.colorbar(ax10, ax=ax[1][0])
+#     fig.colorbar(ax11, ax=ax[1][1])
+#     fig.colorbar(ax20, ax=ax[2][0])
+#     fig.colorbar(ax21, ax=ax[2][1])
+#     fig.colorbar(ax30, ax=ax[3][0])
+#     fig.colorbar(ax31, ax=ax[3][1])
+#     fig.colorbar(ax40, ax=ax[4][0])
+#     fig.colorbar(ax41, ax=ax[4][1])
+#     fig.colorbar(ax50, ax=ax[5][0])
 
-    # 保存
-    plt.savefig(
-        'picture/class_{}_{}.jpg'.format(class_num, count))
+#     # 保存
+#     plt.savefig(
+#         'picture/class_{}_{}.jpg'.format(class_num, count))
 
 
-def save_result_img(orig, mask, pred,step):
+def cal_variance(image_np, label_np, mask_pros, count, class_num, series_uid):
+    """计算多个预测结果的方差
+    image_np:(240,240)
+    label_np:(240,240),元素值0-8
+    mask_pros:(k,240,240),k为预测次数,元素值1-9
+    """
+    k = len(mask_pros) # 预测结果（次）数
+    h, w = image_np.shape
+    
+    mean_result = np.zeros((h, w))      # 均值
+    variance_result = np.zeros((h, w))  # 方差
+    
+    # 计算均值
+    for i in range(k):
+        mean_result += mask_pros[i]
+    mean_result /= k
+    # 计算方差
+    for i in range(k):
+        variance_result += np.square(mean_result-mask_pros[i])
+    variance_result /= k
+    
+    save_result_img(image_np,mask2rgb(label_np),variance_result,"r_{}".format(count),series_uid)
+
+    return 
+
+def save_result_img(orig, mask, pred, pname, series_uid):
     """保存原图、标签、预测结果进行对比"""
     fig, ax = plt.subplots(2, 2, sharey=True, figsize=(14, 12))
     
@@ -243,6 +269,6 @@ def save_result_img(orig, mask, pred,step):
     fig.colorbar(ax01, ax=ax[0][1])
     fig.colorbar(ax10, ax=ax[1][0])
     
-    plt.savefig('picture/compare_{}.jpg'.format(step))
+    fig.suptitle('{}'.format(series_uid))
+    plt.savefig('picture/{}.jpg'.format(pname))
 
-    return

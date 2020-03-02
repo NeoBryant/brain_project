@@ -4,19 +4,20 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from load_Brain_data import BrainS18Dataset
 
-from probabilistic_unet import ProbabilisticUnet
-from utils import bayes_uncertain, label2multichannel
-from save_load_net import save_model, load_model
-
 #%matplotlib inline
 import matplotlib.pyplot as plt
 import matplotlib
 
+from probabilistic_unet import ProbabilisticUnet
+from utils import label2multichannel, cal_variance
+from save_load_net import load_model
+from evaluate import evaluate
+
 # 参数
 class_num = 9 # 选择分割类别数
-predict_time = 1 # 每张图预测次数
+predict_time = 8 # 每张图预测次数,(1,4,8,16)
 
-train_batch_size = 1 # 训练
+train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
 model_name = 'unet_9.pt' # 选择模型
@@ -56,33 +57,34 @@ net = load_model(model=model,
 
 # 预测
 with torch.no_grad():
-    for step, (patch, mask, _) in enumerate(test_loader): 
-        if step < 1:
-            print("predicting picture {}...".format(step))
-            results = [] # 保持每次预测的结果
-            
-            ## show the image
-            label_np = mask.numpy()
-            image_np = patch.numpy()
+    for step, (patch, mask, series_uid) in enumerate(test_loader): 
+        if step < 10:
+            print("Picture {} ({})...".format(step, series_uid))
+            mask_pros = [] # 保持每次预测的结果
 
-            ## through the net to predict
-            patch = patch.to(device)
-            mask = mask.to(device)
-            mask = torch.unsqueeze(mask,1)
-            
+            # 记录numpy
+            image_np = patch.numpy().reshape(240,240) # (batch_size,1,240,240)->(1,240,240)
+            label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-9
+            label_np -= 1 # (batch_size,1,240,240) 元素值0-8
+
+            # 预测predict_time次计算方差
             for i in range(predict_time):
-                net.forward(patch, None, training=False)
-                result = net.sample(testing=True).cpu()
-
-                ## show the image
-                result_np = result.detach().numpy()   
+                patch = patch.to(device)
+                net.forward(patch, None, training=False) 
+                mask_pre = net.sample(testing=True).cpu() # 预测结果, (batch_size,9,240,240)
                 
-                # # 保存这次预测结果
-                results.append(result_np)
+                mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,9,240,240)
+                mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
 
+                ## 统计每个像素的对应通道最大值所在通道即为对应类
+                mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
+                mask_pro += 1 # 元素值变为1-9, (240,240)
+                mask_pros.append(mask_pro)
                 
-            # 计算方差和均值
-            # bayes_uncertain(image_np, label_np, results, step, the_class)   
-            
+            # 计算均值和方差
+            cal_variance(image_np, label_np, mask_pros, step, class_num, series_uid)  
+
         else:
+            # evaluate(net, train_eval_loader, device, test=False)     
+            # evaluate(net, test_loader, device, test=True)   
             break

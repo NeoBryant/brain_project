@@ -63,7 +63,6 @@ class BrainS18Dataset(Dataset):
 
     def _getrgb(self, img):
         """将单通道label变为rgb"""
-
         label = np.zeros((240, 240, 3))
         for c in range(9):
             for x in range(240):
@@ -78,6 +77,9 @@ class BrainS18Dataset(Dataset):
 
     def __getitem__(self, index):
         folder = self.img_paths[index].split('/')[-2]
+        
+        series_uid = self.img_paths[index][0]
+        
         # read imgs
         imgs = [mpimg.imread(self.img_paths[index] + fn).reshape((1, 240, 240)) for fn in self.file_names]
 
@@ -92,9 +94,8 @@ class BrainS18Dataset(Dataset):
 
         # 标签
         label = imgs[3].reshape((1,240,240))
-        label *= 255
-        label += 1 # 加入背景类
-        # label = self._getlabel(imgs[3])
+        label *= 255 # 元素值变为0-8
+        label += 1 # 加入背景类，元素值变为1-9
         
         # 选输入图片类型 0:_FLAIR/1:_reg_IR/2:_reg_T1
         image = torch.from_numpy(imgs[2])
@@ -103,8 +104,6 @@ class BrainS18Dataset(Dataset):
         #Convert uint8 to float tensors
         image = image.type(torch.FloatTensor)
         label = label.type(torch.FloatTensor)
-
-        series_uid = 0
 
         return image, label, series_uid
 
@@ -129,8 +128,10 @@ class BrainS18Dataset(Dataset):
         # 图片标题&保持图像
         fig.suptitle(self.img_paths[index])
         plt.savefig('picture/test_{}.jpg'.format(index))
-
+        
 if __name__ == "__main__": 
     dataset = BrainS18Dataset()
+    for i in range(len(dataset)):
+        image, label, series_uid = dataset.__getitem__(i)
     print(len(dataset))
-    dataset.show_imgs(20)
+    # dataset.show_imgs(20)

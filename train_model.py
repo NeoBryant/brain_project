@@ -14,8 +14,11 @@ from evaluate import evaluate
 class_num = 9 # 选择分割类别数
 epochs = 50  # 训练周期
 learning_rate = 1e-4 # 学习率
+
 train_batch_size = 16 # 训练
 test_batch_size = 1 # 预测
+
+model_name = 'unet_1.pt' # 待保存的模型名
 device = torch.device('cuda:5' if torch.cuda.is_available() else 'cpu') # 选择cpu
 
 # 数据集
@@ -92,5 +95,5 @@ except Exception as e:
     print('Exception: {}'.format(e))
 finally:
     # 保存模型
-    print("saving the trained net model -- unet_{}.pt".format(class_num))
-    save_model(net, path='model/unet_{}.pt'.format(class_num))
+    print("saving the trained net model -- {}}".format(model_name))
+    save_model(net, path='model/{}'.format(model_name))

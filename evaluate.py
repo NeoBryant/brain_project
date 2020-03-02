@@ -40,7 +40,7 @@ def evaluate(model, val_loader, device, test=True):
         for step, (patch, mask, _) in enumerate(val_loader):
             # 标签
             mask = label2multichannel(mask.cpu()) # 单通道变多通道
-
+            
             # 预测
             patch = patch.to(device)
             model.forward(patch, None, training=False)
@@ -49,14 +49,14 @@ def evaluate(model, val_loader, device, test=True):
             mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
             
             ## 统计每个像素的对应通道最大值所在通道即为对应类
-            mask_por = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
-            mask_por += 1 # 元素值变为1-9
-            mask_por = mask_por.reshape((1,1,240,240)) # 变为多通道（batch_size,1,240,240）
-            mask_por = torch.from_numpy(mask_por)
-            mask_por = label2multichannel(mask_por) # 单通道变多通道
+            mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
+            mask_pro += 1 # 元素值变为1-9
+            mask_pro = mask_pro.reshape((1,1,240,240)) # 变为多通道（batch_size,1,240,240）
+            mask_pro = torch.from_numpy(mask_pro)
+            mask_pro = label2multichannel(mask_pro) # 单通道变多通道
             
             # 计算dice值
-            dices += dice_coeff(mask_por, mask)
+            dices += dice_coeff(mask_pro, mask)
             # print(type(dices),dices.shape,dices)
         dices /= (step+1)
         if test:
