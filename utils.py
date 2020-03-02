@@ -58,7 +58,7 @@ def label2multichannel(mask, class_num=9):
     h, w = mask.shape[2], mask.shape[3]
     # mask = mask.reshape((240, 240))
     label = np.zeros((batch_size,class_num, 240, 240))
-
+    
     for b in range(batch_size):
         for i in range(class_num):
             for x in range(h):
