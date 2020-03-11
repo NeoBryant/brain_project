@@ -6,8 +6,10 @@ from utils import init_weights,init_weights_orthogonal_normal, l2_regularisation
 import torch.nn.functional as F
 from torch.distributions import Normal, Independent, kl
 
+import param
+
 # 选择gpu，需要与train文件一致
-device = torch.device('cuda:5' if torch.cuda.is_available() else 'cpu')
+device = param.device # 选择gpu
 
 class Encoder(nn.Module):
     """
@@ -327,6 +329,7 @@ class ProbabilisticUnet(nn.Module):
         """
         
         criterion = nn.BCEWithLogitsLoss(size_average = False, reduce=False, reduction=None)
+        # criterion = nn.BCEWithLogitsLoss(reduction=None)
         z_posterior = self.posterior_latent_space.rsample()
         
         self.kl = torch.mean(self.kl_divergence(analytic=analytic_kl, calculate_posterior=False, z_posterior=z_posterior))

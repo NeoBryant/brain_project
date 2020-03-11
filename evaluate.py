@@ -41,7 +41,7 @@ def evaluate(model, val_loader, device, test=True):
             # 标签
             mask = label2multichannel(mask.cpu()) # 单通道变多通道
             
-            # 预测
+            # 预测,(待优化)
             patch = patch.to(device)
             model.forward(patch, None, training=False)
             mask_pre = model.sample(testing=True).cpu() # 预测结果,(batch_size,9,240,240)

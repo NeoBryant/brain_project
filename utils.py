@@ -249,9 +249,14 @@ def cal_variance(image_np, label_np, mask_pros, count, class_num, series_uid):
         variance_result += np.square(mean_result-mask_pros[i])
     variance_result /= k
     
+    # 保存原图、标签、和m张预测结果
+    
+    # 保存原图、标签、和方差
+
     save_result_img(image_np,mask2rgb(label_np),variance_result,"r_{}".format(count),series_uid)
 
     return 
+
 
 def save_result_img(orig, mask, pred, pname, series_uid):
     """保存原图、标签、预测结果进行对比"""
@@ -264,11 +269,12 @@ def save_result_img(orig, mask, pred, pname, series_uid):
     ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
     ax01 = ax[0][1].imshow(mask, aspect="auto")
     ax10 = ax[1][0].imshow(pred, aspect="auto")
-
+    
     fig.colorbar(ax00, ax=ax[0][0])
     fig.colorbar(ax01, ax=ax[0][1])
     fig.colorbar(ax10, ax=ax[1][0])
     
     fig.suptitle('{}'.format(series_uid))
     plt.savefig('picture/{}.jpg'.format(pname))
+    plt.close()
 

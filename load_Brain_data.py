@@ -78,8 +78,10 @@ class BrainS18Dataset(Dataset):
     def __getitem__(self, index):
         folder = self.img_paths[index].split('/')[-2]
         
-        series_uid = self.img_paths[index][0]
-        
+        series_uid = self.img_paths[index].split('/')[-2:]
+        # print(type(series_uid[0]))
+        # series_uid = str(series_uid[0])+"/"+series_uid[1]
+
         # read imgs
         imgs = [mpimg.imread(self.img_paths[index] + fn).reshape((1, 240, 240)) for fn in self.file_names]
 
@@ -131,7 +133,9 @@ class BrainS18Dataset(Dataset):
         
 if __name__ == "__main__": 
     dataset = BrainS18Dataset()
-    for i in range(len(dataset)):
-        image, label, series_uid = dataset.__getitem__(i)
+    # for i in range(len(dataset)):
+    #     image, label, series_uid = dataset.__getitem__(i)
     print(len(dataset))
+    image, label, series_uid = dataset.__getitem__(0)
+    print(type(series_uid), series_uid)
     # dataset.show_imgs(20)
