@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 from probabilistic_unet import ProbabilisticUnet
-from utils import label2multichannel, cal_variance
+from utils import label2multichannel, cal_variance, save_8_pred_img, mask2rgb
 from save_load_net import load_model
 from evaluate import evaluate
 import param
@@ -22,10 +22,8 @@ predict_time = 8 # 每张图预测次数,(1,4,8,16)
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'unet_epoch_50.pt' # 选择模型
-# device = torch.device('cuda:5' if torch.cuda.is_available() else 'cpu') # 选择cpu
-device = param.device
-
+model_name = 'unet_epoch_50_v2.pt' # 加载模型名称
+device = param.device # 选gpu
 
 # 选择数据集
 dataset = BrainS18Dataset(root_dir='data/BrainS18', class_num=class_num)
@@ -45,10 +43,10 @@ train_indices, test_indices = indices[split:], indices[:split]
 train_sampler = SequentialSampler(train_indices)
 test_sampler = SequentialSampler(test_indices)
 
-# 加载器
+# 数据加载器
 train_loader = DataLoader(dataset, batch_size=train_batch_size, sampler=train_sampler)
 test_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=test_sampler)
-print("Number of training/test patches:", (len(train_indices),len(test_indices)))
+print("Number of training/test patches: {}/{}".format(len(train_indices),len(test_indices)))
 
 # 加载已经训练好的网络进行预测
 model = ProbabilisticUnet(input_channels=1, 
@@ -86,8 +84,10 @@ with torch.no_grad():
             mask_pro += 1 # 元素值变为1-9, (240,240)
             mask_pros.append(mask_pro)
 
-        # 计算均值和方差
+        # 计算均值和方差,并保存相应图片
         cal_variance(image_np, label_np, mask_pros, step, class_num, series_uid)  
+        
     # 评估
-    # evaluate(net, train_eval_loader, device, test=False)     
+    # print("Evaluating ...")
+    # evaluate(net, train_loader, device, test=False)     
     # evaluate(net, test_loader, device, test=True)   

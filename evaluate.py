@@ -29,6 +29,11 @@ def dice_coeff(input, target):
     result = float(result[0])
     return result
 
+def IOU_coeff(input, target):
+    """IOU coeff for batches"""
+    
+    return
+
 
 def evaluate(model, val_loader, device, test=True):
     """评估模型，dice值等"""

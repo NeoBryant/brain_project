@@ -43,7 +43,8 @@ test_sampler = SubsetRandomSampler(test_indices)
 train_loader = DataLoader(dataset, batch_size=train_batch_size, sampler=train_sampler) # 训练
 train_eval_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=train_sampler) # 评估
 test_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=test_sampler) # 评估
-print("Number of training/test patches:", (len(train_indices),len(test_indices)))
+# print("Number of training/test patches:", (len(train_indices),len(test_indices)))
+print("Number of training/test patches: {}/{}".format(len(train_indices),len(test_indices)))
 
 # 网络模型
 net = ProbabilisticUnet(input_channels=1, 
