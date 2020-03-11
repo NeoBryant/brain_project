@@ -252,29 +252,27 @@ def cal_variance(image_np, label_np, mask_pros, count, class_num, series_uid):
     # 保存原图、标签、和m张预测结果
     
     # 保存原图、标签、和方差
-
-    save_result_img(image_np,mask2rgb(label_np),variance_result,"r_{}".format(count),series_uid)
+    save_variance_img(image_np,mask2rgb(label_np),variance_result,series_uid)
 
     return 
 
+def save_variance_img(orig, mask, pred, series_uid):
+    """保存原图、标签、预测结果的方差进行对比"""
+    fig, ax = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
+    
+    ax[0].set_title("Original")
+    ax[1].set_title("Ground Truth")
+    ax[2].set_title("variance")
 
-def save_result_img(orig, mask, pred, pname, series_uid):
-    """保存原图、标签、预测结果进行对比"""
-    fig, ax = plt.subplots(2, 2, sharey=True, figsize=(14, 12))
+    ax00 = ax[0].imshow(orig, aspect="auto", cmap="gray")
+    ax01 = ax[1].imshow(mask, aspect="auto")
+    ax10 = ax[2].imshow(pred, aspect="auto")
     
-    ax[0][0].set_title("Original")
-    ax[0][1].set_title("Ground Truth")
-    ax[1][0].set_title("predict")
-
-    ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
-    ax01 = ax[0][1].imshow(mask, aspect="auto")
-    ax10 = ax[1][0].imshow(pred, aspect="auto")
+    # fig.colorbar(ax00, ax=ax[0])
+    # fig.colorbar(ax01, ax=ax[1])
+    # fig.colorbar(ax10, ax=ax[2])
     
-    fig.colorbar(ax00, ax=ax[0][0])
-    fig.colorbar(ax01, ax=ax[0][1])
-    fig.colorbar(ax10, ax=ax[1][0])
-    
-    fig.suptitle('{}'.format(series_uid))
-    plt.savefig('picture/{}.jpg'.format(pname))
+    fig.suptitle('patient {} - slice {}'.format(series_uid[0][0], series_uid[1][0]))
+    plt.savefig('picture/p{}_s{}_var.jpg'.format(series_uid[0][0], series_uid[1][0]))
     plt.close()
 

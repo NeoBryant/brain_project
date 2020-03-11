@@ -64,33 +64,30 @@ net = load_model(model=model,
 # 预测
 with torch.no_grad():
     for step, (patch, mask, series_uid) in enumerate(test_loader): 
-        if step < 25:
-            print("Picture {} ({})...".format(step, series_uid))
-            mask_pros = [] # 保持每次预测的结果
+        print("Picture {} (patient {} - slice {})...".format(step, series_uid[0][0], series_uid[1][0]))
+        mask_pros = [] # 保持每次预测的结果
 
-            # 记录numpy
-            image_np = patch.numpy().reshape(240,240) # (batch_size,1,240,240)->(1,240,240)
-            label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-9
-            label_np -= 1 # (batch_size,1,240,240) 元素值0-8
+        # 记录numpy
+        image_np = patch.numpy().reshape(240,240) # (batch_size,1,240,240)->(1,240,240)
+        label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-9
+        label_np -= 1 # (batch_size,1,240,240) 元素值0-8
 
-            # 预测predict_time次计算方差
-            for i in range(predict_time):
-                patch = patch.to(device)
-                net.forward(patch, None, training=False) 
-                mask_pre = net.sample(testing=True).cpu() # 预测结果, (batch_size,9,240,240)
-                
-                mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,9,240,240)
-                mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
+        # 预测predict_time次计算方差
+        for i in range(predict_time):
+            patch = patch.to(device)
+            net.forward(patch, None, training=False) 
+            mask_pre = net.sample(testing=True).cpu() # 预测结果, (batch_size,9,240,240)
+            
+            mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,9,240,240)
+            mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
 
-                ## 统计每个像素的对应通道最大值所在通道即为对应类
-                mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
-                mask_pro += 1 # 元素值变为1-9, (240,240)
-                mask_pros.append(mask_pro)
-                
-            # 计算均值和方差
-            cal_variance(image_np, label_np, mask_pros, step, class_num, series_uid)  
+            ## 统计每个像素的对应通道最大值所在通道即为对应类
+            mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
+            mask_pro += 1 # 元素值变为1-9, (240,240)
+            mask_pros.append(mask_pro)
 
-        else:
-            # evaluate(net, train_eval_loader, device, test=False)     
-            # evaluate(net, test_loader, device, test=True)   
-            break
+        # 计算均值和方差
+        cal_variance(image_np, label_np, mask_pros, step, class_num, series_uid)  
+    # 评估
+    # evaluate(net, train_eval_loader, device, test=False)     
+    # evaluate(net, test_loader, device, test=True)   

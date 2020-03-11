@@ -138,4 +138,5 @@ if __name__ == "__main__":
     print(len(dataset))
     image, label, series_uid = dataset.__getitem__(0)
     print(type(series_uid), series_uid)
+    print(type(series_uid[0]), series_uid[0])
     # dataset.show_imgs(20)
