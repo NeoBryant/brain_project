@@ -68,7 +68,7 @@ with torch.no_grad():
         # 记录numpy
         image_np = patch.numpy().reshape(240,240) # (batch_size,1,240,240)->(1,240,240)
         label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-9
-        label_np -= 1 # (batch_size,1,240,240) 元素值0-8
+        label_np -= 1 # (batch_size,1,240,240) 元素值从1-9变为0-8
         
         # 预测predict_time次计算方差
         for i in range(predict_time):
@@ -86,8 +86,8 @@ with torch.no_grad():
 
         # 计算均值和方差,并保存相应图片
         cal_variance(image_np, label_np, mask_pros, class_num, series_uid)  
-        break
+
     # 评估
     print("Evaluating ...")
-    # evaluate(net, train_loader, device, test=False)     
-    evaluate(net, test_loader, device, test=True)   
+    evaluate(net, train_loader, device, class_num, test=False)     
+    evaluate(net, test_loader, device, class_num, test=True)   

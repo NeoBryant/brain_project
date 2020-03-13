@@ -92,7 +92,7 @@ try:
         losses /= (step+1)
         print("Loss (Train): {}".format(losses))
         # evaluate(net, train_eval_loader, device, test=False)     
-        evaluate(net, test_loader, device, test=True)        
+        evaluate(net, test_loader, device, class_num, test=True)        
 except KeyboardInterrupt as e:
     print('KeyboardInterrupt: {}'.format(e))
 except Exception as e:

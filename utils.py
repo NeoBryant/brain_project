@@ -107,16 +107,6 @@ def cal_variance(image_np, label_np, mask_pros, class_num, series_uid):
     
     mean_result = np.zeros((h, w))      # 均值
     variance_result = np.zeros((h, w))  # 方差
-    
-    # 方法一（直接对1-9求方差）有缺陷
-    # # 计算均值
-    # for i in range(k):
-    #     mean_result += mask_pros[i]
-    # mean_result /= k
-    # # 计算方差
-    # for i in range(k):
-    #     variance_result += np.square(mean_result-mask_pros[i])
-    # variance_result /= k
 
     # 方法二（对预测正确的，对0/1求方差）
     mask_pros_temp = [np.zeros((240, 240)) for i in range(m)] # 记录预测正确的像素点设为1
@@ -172,14 +162,14 @@ def save_8_pred_img(orig, mask, var, pred, series_uid):
     
     ax[0][0].set_title("Original")
     ax[0][1].set_title("Ground Truth")
-    ax[0][2].set_title("variance")
+    ax[0][3].set_title("variance")
     for i in range(4):
         ax[1][i].set_title("predict_{}".format(i))
         ax[2][i].set_title("predict_{}".format(i+4))
 
     ax[0][0].imshow(orig, aspect="auto", cmap="gray")
     ax[0][1].imshow(mask, aspect="auto")
-    ax[0][2].imshow(var, aspect="auto")
+    ax[0][3].imshow(var, aspect="auto")
     for i in range(4):
         ax[1][i].imshow(mask2rgb(pred[i]), aspect="auto")
         ax[2][i].imshow(mask2rgb(pred[i+4]), aspect="auto")
