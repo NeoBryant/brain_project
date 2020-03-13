@@ -72,7 +72,7 @@ try:
             mask = mask.to(device)
             # mask = torch.unsqueeze(mask,1) (batch_size,240,240)->(batch_size,1,240,240)
             net.forward(patch, mask, training=True)
-            # label通道1->9
+            # label通道数1->9，单通道（1-9）变多通道（0/1）
             mask = label2multichannel(mask.cpu(), class_num)
             mask = mask.to(device)
             elbo = net.elbo(mask)

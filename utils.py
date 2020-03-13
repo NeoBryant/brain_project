@@ -94,27 +94,43 @@ def mask2rgb(mask):
     return img
 
 
-def cal_variance(image_np, label_np, mask_pros, count, class_num, series_uid):
+def cal_variance(image_np, label_np, mask_pros, class_num, series_uid):
     """计算多个预测结果的方差
     image_np:(240,240)
     label_np:(240,240),元素值0-8
-    mask_pros:(k,240,240),k为预测次数,元素值1-9
+    mask_pros:(m,240,240),k为预测次数,元素值0-8
+    class_num: 分割任务类别数
+    series_uid: 每张图片的序列号，list，[病人，张数]
     """
-    k = len(mask_pros) # 预测结果（次）数
-    h, w = image_np.shape
+    m = len(mask_pros) # 预测结果（次）数
+    h, w = image_np.shape # 图片高宽
     
     mean_result = np.zeros((h, w))      # 均值
     variance_result = np.zeros((h, w))  # 方差
     
+    # 方法一（直接对1-9求方差）有缺陷
+    # # 计算均值
+    # for i in range(k):
+    #     mean_result += mask_pros[i]
+    # mean_result /= k
+    # # 计算方差
+    # for i in range(k):
+    #     variance_result += np.square(mean_result-mask_pros[i])
+    # variance_result /= k
+
+    # 方法二（对预测正确的，对0/1求方差）
+    mask_pros_temp = [np.zeros((240, 240)) for i in range(m)] # 记录预测正确的像素点设为1
+    for i in range(m):
+        mask_pros_temp[i] = (mask_pros[i]==label_np)
     # 计算均值
-    for i in range(k):
-        mean_result += mask_pros[i]
-    mean_result /= k
+    for i in range(m):
+        mean_result += mask_pros_temp[i]
+    mean_result /= m
     # 计算方差
-    for i in range(k):
-        variance_result += np.square(mean_result-mask_pros[i])
-    variance_result /= k
-    
+    for i in range(m):
+        variance_result += np.square(mean_result - mask_pros_temp[i])
+    variance_result /= m
+
     # 保存原图、标签、和m张预测结果
     save_8_pred_img(image_np, mask2rgb(label_np), variance_result, mask_pros, series_uid)
 
@@ -150,10 +166,8 @@ def save_8_pred_img(orig, mask, var, pred, series_uid):
     """保存原图、标签、8个预测结果进行对比
     orig:(240,240)
     mask:(240,240),元素值0-8
-    pred:(k,240,240),k为预测次数,元素值1-9
+    pred:(k,240,240),k为预测次数,元素值0-8
     """
-    for i in range(8):
-        pred[i] -= 1 # 元素变为0-8
     fig, ax = plt.subplots(3, 4, sharey=True, figsize=(20, 15))
     
     ax[0][0].set_title("Original")

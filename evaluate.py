@@ -29,9 +29,16 @@ def dice_coeff(input, target):
     result = float(result[0])
     return result
 
-def IOU_coeff(input, target):
+def IoU_coeff(input, target):
     """IOU coeff for batches"""
-    
+    if input.is_cuda:
+        s = torch.FloatTensor(1).cuda().zero_()
+    else:
+        s = torch.FloatTensor(1).zero_()
+    for i, c in enumerate(zip(input, target)):
+        s = s + DiceCoeff().forward(c[0], c[1])
+    result = s/(i+1)
+    result = float(result[0])
     return
 
 
@@ -44,7 +51,7 @@ def evaluate(model, val_loader, device, test=True):
         dices = 0 # 记录dices
         for step, (patch, mask, _) in enumerate(val_loader):
             # 标签
-            mask = label2multichannel(mask.cpu()) # 单通道变多通道
+            mask = label2multichannel(mask.cpu()) # 单通道(0-8)变多通道
             
             # 预测,(待优化)
             patch = patch.to(device)
@@ -52,7 +59,7 @@ def evaluate(model, val_loader, device, test=True):
             mask_pre = model.sample(testing=True).cpu() # 预测结果,(batch_size,9,240,240)
             mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,9,240,240)
             mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
-            
+
             ## 统计每个像素的对应通道最大值所在通道即为对应类
             mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
             mask_pro += 1 # 元素值变为1-9
@@ -61,7 +68,7 @@ def evaluate(model, val_loader, device, test=True):
             mask_pro = label2multichannel(mask_pro) # 单通道变多通道
             
             # 计算dice值
-            dices += dice_coeff(mask_pro, mask)
+            dices += dice_coeff(mask_pro, mask) # 多通道（0/1），多通道（0/1）
             # print(type(dices),dices.shape,dices)
         dices /= (step+1)
         if test:
