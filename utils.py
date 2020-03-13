@@ -70,7 +70,7 @@ def label2multichannel(mask, class_num=9):
 
     return label
 
-def mask2rgb(mask):
+def mask2rgb(mask, class_num=9):
     """单通道变rgb图，以不同颜色显示大脑不同区域
     输入numpy(1,240,240)/(240,240)
     输出numpy(3,240,240)
@@ -82,7 +82,7 @@ def mask2rgb(mask):
     color = [(0,0,0),(255,0,0),(0,255,0),(0,0,255),(255,255,0),
     (255,0,255),(0,255,255),(128,0,128),(255,255,255)] 
     img = np.zeros((240, 240, 3))
-    for c in range(9):
+    for c in range(class_num):
         for x in range(240):
             for y in range(240):
                 if int(mask[x,y]) == c:

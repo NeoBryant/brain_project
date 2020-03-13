@@ -82,16 +82,14 @@ try:
             losses += loss
             if step%10 == 0:
                 print("-- [step {}] loss: {}".format(step, loss))
-                # evaluate(net, test_loader, device, test=True)    
-                # break
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
+        print("-- [step {}] loss: {}".format(step, loss))
         # 评估
         losses /= (step+1)
         print("Loss (Train): {}".format(losses))
-        # evaluate(net, train_eval_loader, device, test=False)     
+        evaluate(net, train_eval_loader, device, class_num, test=False)     
         evaluate(net, test_loader, device, class_num, test=True)        
 except KeyboardInterrupt as e:
     print('KeyboardInterrupt: {}'.format(e))
