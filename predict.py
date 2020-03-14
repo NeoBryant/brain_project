@@ -26,7 +26,8 @@ model_name = 'unet_epoch_50_class_10.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
-dataset = BrainS18Dataset(root_dir='data/BrainS18', class_num=class_num)
+dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
+                          '1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'], class_num=class_num)
 
 
 # 数据划分并设置sampler（（固定训练集和测试集））

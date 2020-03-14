@@ -23,7 +23,9 @@ model_name = 'unet_1.pt' # 待保存的模型名
 device = param.device # 选择cpu
 
 # 数据集
-dataset = BrainS18Dataset(root_dir='data/BrainS18', class_num=class_num)
+dataset = BrainS18Dataset(root_dir='data/BrainS18', 
+                          folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'],
+                          class_num=class_num)
 
 # 数据划分并设置sampler（（固定训练集和测试集））
 dataset_size = len(dataset)  # 数据集大小

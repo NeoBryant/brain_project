@@ -3,7 +3,7 @@
 import torch
 
 # gpu选择
-device = torch.device('cuda:5' if torch.cuda.is_available() else 'cpu') # 选择cpu
+device = torch.device('cuda:7' if torch.cuda.is_available() else 'cpu') # 选择cpu
 
 # 数据选择
 # dataset_size = len(dataset)  # 数据集大小

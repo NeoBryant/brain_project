@@ -158,8 +158,8 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     mask:(240,240),元素值0-9
     pred:(k,240,240),k为预测次数,元素值0-9
     """
-    fig, ax = plt.subplots(3, 4, sharey=True, figsize=(20, 15))
-    cmap = plt.cm.get_cmap('tab10', 10)    # 10 discrete colors，RdYlBu
+    fig, ax = plt.subplots(3, 4, sharey=True, figsize=(24, 15))
+    cmap = plt.cm.get_cmap('Paired', class_num)    # 10 discrete colors,tab10
 
     # 设置每张子图的标题
     ax[0][0].set_title("Original")
@@ -168,20 +168,20 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     for i in range(4):
         ax[1][i].set_title("predict_{}".format(i))
         ax[2][i].set_title("predict_{}".format(i+4))
-
+    
     # 设置每张子图显示内容
     ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
-    ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax03 = ax[0][3].imshow(var, aspect="auto", cmap="hot")
+    ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax03 = ax[0][3].imshow(var, aspect="auto", cmap="gist_heat")
     # for i in range(4):
-    ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax12 = ax[1][2].imshow(pred[2], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax13 = ax[1][3].imshow(pred[3], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax20 = ax[2][0].imshow(pred[4], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax21 = ax[2][1].imshow(pred[5], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax22 = ax[2][2].imshow(pred[6], cmap=cmap, aspect="auto", vmin=0, vmax=9)
-    ax23 = ax[2][3].imshow(pred[7], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax12 = ax[1][2].imshow(pred[2], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax13 = ax[1][3].imshow(pred[3], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax20 = ax[2][0].imshow(pred[4], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax21 = ax[2][1].imshow(pred[5], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax22 = ax[2][2].imshow(pred[6], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax23 = ax[2][3].imshow(pred[7], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
 
     # color bar
     fig.colorbar(ax00, ax=ax[0][0])

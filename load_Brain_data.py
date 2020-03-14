@@ -24,7 +24,7 @@ import os
 
 
 class BrainS18Dataset(Dataset):
-    def __init__(self, root_dir='data/BrainS18', folders=['1', '5', '7', '4', '148', '070', '14'], class_num=10):
+    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'], class_num=10):
         print('Preparing BrainS18Dataset {} ... '.format(folders), end='')
 
         self.file_names = ['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png']
