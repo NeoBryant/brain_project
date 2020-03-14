@@ -47,8 +47,8 @@ def save_mask_prediction_example(mask, pred, iter):
 	plt.savefig('images/'+str(iter)+"_mask.png")
 
 
-def label2multichannel(mask, class_num=9):
-    """将单通道（元素值1-9）变为多通道（元素值0-1）
+def label2multichannel(mask, class_num=10):
+    """将单通道（元素值1-10）变为多通道（元素值0-1）
     输入为torch
     输出为torch
     mask.shape: batch_size,1,240,240
@@ -70,7 +70,7 @@ def label2multichannel(mask, class_num=9):
 
     return label
 
-def mask2rgb(mask, class_num=9):
+def mask2rgb(mask, class_num=10):
     """单通道变rgb图，以不同颜色显示大脑不同区域
     输入numpy(1,240,240)/(240,240)
     输出numpy(3,240,240)
@@ -78,9 +78,9 @@ def mask2rgb(mask, class_num=9):
     mask.shape (240,240)
     """
     mask = mask.reshape((240,240))
-    # 颜色rgb （黑，红，绿，蓝，黄，淡紫，青，紫，白）
+    # 颜色rgb （黑，红，绿，蓝，黄，淡紫，青，紫，黄绿，白）
     color = [(0,0,0),(255,0,0),(0,255,0),(0,0,255),(255,255,0),
-    (255,0,255),(0,255,255),(128,0,128),(255,255,255)] 
+    (255,0,255),(0,255,255),(128,0,128),(128,128,0),(255,255,255)] 
     img = np.zeros((240, 240, 3))
     for c in range(class_num):
         for x in range(240):
@@ -122,10 +122,10 @@ def cal_variance(image_np, label_np, mask_pros, class_num, series_uid):
     variance_result /= m
 
     # 保存原图、标签、和m张预测结果
-    save_8_pred_img(image_np, mask2rgb(label_np), variance_result, mask_pros, series_uid)
-
+    # save_8_pred_img(image_np, mask2rgb(label_np), variance_result, mask_pros, class_num, series_uid)
+    save_8_pred_img(image_np, label_np, variance_result, mask_pros, class_num, series_uid)
     # 保存原图、标签、和方差
-    save_variance_img(image_np, mask2rgb(label_np), variance_result,series_uid)
+    # save_variance_img(image_np, mask2rgb(label_np), variance_result,series_uid)
 
     return 
 
@@ -152,14 +152,16 @@ def save_variance_img(orig, mask, var, series_uid):
     plt.close()
 
 
-def save_8_pred_img(orig, mask, var, pred, series_uid):
+def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     """保存原图、标签、8个预测结果进行对比
     orig:(240,240)
-    mask:(240,240),元素值0-8
-    pred:(k,240,240),k为预测次数,元素值0-8
+    mask:(240,240),元素值0-9
+    pred:(k,240,240),k为预测次数,元素值0-9
     """
     fig, ax = plt.subplots(3, 4, sharey=True, figsize=(20, 15))
-    
+    cmap = plt.cm.get_cmap('tab10', 10)    # 10 discrete colors，RdYlBu
+
+    # 设置每张子图的标题
     ax[0][0].set_title("Original")
     ax[0][1].set_title("Ground Truth")
     ax[0][3].set_title("variance")
@@ -167,18 +169,38 @@ def save_8_pred_img(orig, mask, var, pred, series_uid):
         ax[1][i].set_title("predict_{}".format(i))
         ax[2][i].set_title("predict_{}".format(i+4))
 
-    ax[0][0].imshow(orig, aspect="auto", cmap="gray")
-    ax[0][1].imshow(mask, aspect="auto")
-    ax[0][3].imshow(var, aspect="auto")
-    for i in range(4):
-        ax[1][i].imshow(mask2rgb(pred[i]), aspect="auto")
-        ax[2][i].imshow(mask2rgb(pred[i+4]), aspect="auto")
+    # 设置每张子图显示内容
+    ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
+    ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax03 = ax[0][3].imshow(var, aspect="auto", cmap="hot")
+    # for i in range(4):
+    ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax12 = ax[1][2].imshow(pred[2], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax13 = ax[1][3].imshow(pred[3], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax20 = ax[2][0].imshow(pred[4], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax21 = ax[2][1].imshow(pred[5], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax22 = ax[2][2].imshow(pred[6], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax23 = ax[2][3].imshow(pred[7], cmap=cmap, aspect="auto", vmin=0, vmax=9)
 
-    # 去掉刻度
+    # color bar
+    fig.colorbar(ax00, ax=ax[0][0])
+    fig.colorbar(ax01, ax=ax[0][1])
+    fig.colorbar(ax03, ax=ax[0][3])
+    fig.colorbar(ax10, ax=ax[1][0])
+    fig.colorbar(ax11, ax=ax[1][1])
+    fig.colorbar(ax12, ax=ax[1][2])
+    fig.colorbar(ax13, ax=ax[1][3])
+    fig.colorbar(ax20, ax=ax[2][0])
+    fig.colorbar(ax21, ax=ax[2][1])
+    fig.colorbar(ax22, ax=ax[2][2])
+    fig.colorbar(ax23, ax=ax[2][3])
+
+    # 不显示刻度尺、标
     for i in range(3):
         for j in range(4):    
             ax[i][j].axis('off')
     
     fig.suptitle('patient {} - slice {}'.format(series_uid[0][0], series_uid[1][0]))
-    plt.savefig('picture/p{}_s{}_pre8.jpg'.format(series_uid[0][0], series_uid[1][0]))
+    plt.savefig('picture/c{}_p{}_s{}_pre8.jpg'.format(class_num, series_uid[0][0], series_uid[1][0]))
     plt.close()

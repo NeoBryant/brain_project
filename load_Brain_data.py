@@ -15,11 +15,12 @@ import os
 #     (255,0,255),(0,255,255),(128,0,128),(255,255,255)] 
 # color_ox = ["#000000","#FF0000","#00FF00","#0000FF","#FFFF00","#FF00FF","#00FFFF",
 #             "#800080", "#FFFFFF"]
-# # 皮质灰质、基底神经节、白质、白质病变、脑脊液中、心室、小脑、脑干
-# color_name = ["Cortical gray matter", "Basal ganglia", 
+# # 0背景、1皮质灰质、2基底神经节、3白质、4白质病变、5脑脊液、6脑室、7小脑、8脑干、9梗塞、10其他
+# color_name = ["Background", "Cortical gray matter", "Basal ganglia", 
 #                 "White matter", "White matter lesions", 
 #                 "Cerebrospinal fluid in the extracerebral space", 
-#                 "Ventricles", "Cerebellum", "Brain stem"]
+#                 "Ventricles", "Cerebellum", "Brain stem", "Infarction"、"Other"]
+# 数据集说明：https://mrbrains18.isi.uu.nl/data/
 
 
 class BrainS18Dataset(Dataset):
@@ -69,7 +70,7 @@ class BrainS18Dataset(Dataset):
         # 标签
         label = imgs[3].reshape((1,240,240))
         label *= 255 # 元素值变为0-9
-        label += 1 # 加入背景类，元素值变为1-9
+        label += 1 # 加入背景类，元素值变为1-10
         
         # 选输入图片类型 0:_FLAIR/1:_reg_IR/2:_reg_T1
         image = torch.from_numpy(imgs[2])
@@ -86,6 +87,18 @@ if __name__ == "__main__":
     # for i in range(len(dataset)):
     #     image, label, series_uid = dataset.__getitem__(i)
     print(len(dataset))
-    image, label, series_uid = dataset.__getitem__(0)
-    
+    count = 0
+    class_ = 11
+    for i in range(len(dataset)):
+        _, label, _ = dataset.__getitem__(i)
+        isFound = False
+        for x in range(240):
+            for y in range(240):
+                if int(label[0, x, y]) == class_:
+                    count += 1
+                    isFound = True
+                    break
+            if isFound:
+                break
+    print("Class {}: {} slice".format(class_-1, count))
     

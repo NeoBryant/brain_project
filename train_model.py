@@ -12,7 +12,7 @@ from evaluate import evaluate
 import param
 
 # 参数
-class_num = 9 # 选择分割类别数
+class_num = param.class_num # 选择分割类别数
 epochs = 50  # 训练周期
 learning_rate = 1e-4 # 学习率
 

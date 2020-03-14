@@ -16,23 +16,11 @@ class DiceCoeff(Function):
         dice = (2 * self.inter.float() + eps) / self.union.float()
         return dice
 
-# def dice_coeff(input, target):
-#     """Dice coeff for batches"""
-#     if input.is_cuda:
-#         s = torch.FloatTensor(1).cuda().zero_()
-#     else:
-#         s = torch.FloatTensor(1).zero_()
-
-#     for i, c in enumerate(zip(input, target)):
-#         s = s + DiceCoeff().forward(c[0], c[1])
-#     result = s/(i+1)
-#     result = float(result[0])
-#     return result
-
 def dice_coeff(input, target):
     """Dice coeff
-    input：预测结果，np，（240，240）
-    target：标签，np，（240，240）
+    包括背景0类， 
+    input：预测结果，np，（240，240），0-9
+    target：标签，np，（240，240），0-9
     """
     eps = 0.0001
     same = (input==target) # 相同的为1,不同的为0
@@ -43,8 +31,9 @@ def dice_coeff(input, target):
 
 def IoU_coeff(input, target):
     """IoU coeff
-    input：预测结果，np，（240，240）
-    target：标签，np，（240，240）
+    包括背景0类， 
+    input：预测结果，np，（240，240）,0-9
+    target：标签，np，（240，240）,0-9
     """
     eps = 0.0001
     same = (input==target) # 相同的为1,不同的为0
@@ -64,8 +53,8 @@ def evaluate(model, val_loader, device, class_num, test=True):
         for step, (patch, mask, _) in enumerate(val_loader):
             # 标签
             # mask = label2multichannel(mask.cpu()) # 单通道(0-8)变多通道
-            mask = mask.cpu().numpy().reshape((240,240)) # 单通道1-9,(1,1,240,240)->(240,240)
-
+            mask = mask.cpu().numpy().reshape((240,240)) # 单通道1-10,(1,1,240,240)->(240,240)
+            mask -= 1 # 单通道0-9
             # 预测
             patch = patch.to(device)
             model.forward(patch, None, training=False)
@@ -73,11 +62,11 @@ def evaluate(model, val_loader, device, class_num, test=True):
             mask_pre = mask_pre.reshape((class_num,240,240)) # 降维
             
             # 统计每个像素的对应通道最大值所在通道即为对应类
-            mask_pro = mask_pre.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
-            mask_pro += 1 # 元素值变为1-9
+            mask_pro = mask_pre.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-9
+            # mask_pro += 1 # 元素值变为1-10
             
             # 计算dice值
-            dices += dice_coeff(mask_pro, mask) # 单通道np(240)（1-9），多通道np(240,240)（1-9）
+            dices += dice_coeff(mask_pro, mask) # 单通道np(240)（0-9），多通道np(240,240)（0-9）
             IoUs += IoU_coeff(mask_pro, mask)
         # 除以slice数
         dices /= (step+1)

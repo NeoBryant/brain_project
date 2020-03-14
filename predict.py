@@ -16,13 +16,13 @@ import param
 
 
 # 参数
-class_num = 9 # 选择分割类别数
+class_num = param.class_num # 选择分割类别数
 predict_time = 8 # 每张图预测次数,(1,4,8,16)
 
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'unet_epoch_50_v2.pt' # 加载模型名称
+model_name = 'unet_epoch_50_class_10.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
@@ -67,26 +67,25 @@ with torch.no_grad():
         
         # 记录numpy
         image_np = patch.numpy().reshape(240,240) # (batch_size,1,240,240)->(1,240,240)
-        label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-9
-        label_np -= 1 # (batch_size,1,240,240) 元素值从1-9变为0-8
+        label_np = mask.numpy().reshape(240,240) # (batch_size,1,240,240) 元素值1-10
+        label_np -= 1 # (batch_size,1,240,240) 元素值从1-10变为0-9
         
         # 预测predict_time次计算方差
         for i in range(predict_time):
             patch = patch.to(device)
             net.forward(patch, None, training=False) 
-            mask_pre = net.sample(testing=True).cpu() # 预测结果, (batch_size,9,240,240)
+            mask_pre = net.sample(testing=True).cpu() # 预测结果, (batch_size,class_num,240,240)
             
-            mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,9,240,240)
-            mask_pre_np = mask_pre_np.reshape((9,240,240)) # 降维
+            mask_pre_np = mask_pre.detach().numpy() # torch变numpy(batch_size,class_num,240,240)
+            mask_pre_np = mask_pre_np.reshape((class_num,240,240)) # 降维
 
             ## 统计每个像素的对应通道最大值所在通道即为对应类
-            mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-8
-            # mask_pro += 1 # 元素值变为1-9, (240,240)
+            mask_pro = mask_pre_np.argmax(axis=0) # 计算每个batch的预测结果最大值，单通道,元素值0-9
             mask_pros.append(mask_pro)
 
         # 计算均值和方差,并保存相应图片
         cal_variance(image_np, label_np, mask_pros, class_num, series_uid)  
-
+        
     # 评估
     print("Evaluating ...")
     evaluate(net, train_loader, device, class_num, test=False)     
