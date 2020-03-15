@@ -24,7 +24,7 @@ import os
 
 
 class BrainS18Dataset(Dataset):
-    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'], class_num=9, file_names=['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png']):
+    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img'], class_num=9, file_names=['_reg_T1.png', '_segm.png']):
         print('Preparing BrainS18Dataset {} ... '.format(folders), end='')
 
         self.file_names = file_names
@@ -37,6 +37,7 @@ class BrainS18Dataset(Dataset):
         print('Done')
 
     def _prepare_dataset(self, root_dir, folders):
+        """计算数据均值和方差，并计算图片数据路径"""
         # compute mean and std and prepare self.img_paths
         for folder in folders:
             paths = [os.path.join(root_dir, folder, str(i)) for i in range(48)]
@@ -68,7 +69,7 @@ class BrainS18Dataset(Dataset):
             imgs[i] = (imgs[i] - mean) / std
 
         # 标签
-        label = imgs[3].reshape((1,240,240))
+        label = imgs[-1].reshape((1,240,240))
         label *= 255 # 元素值变为0-9
         # 将标签为9的变为1
         label[label==9] = 1
@@ -76,8 +77,8 @@ class BrainS18Dataset(Dataset):
         label += 1 # 加入背景类，元素值变为1-10
 
         
-        # 选输入图片类型 0:_FLAIR/1:_reg_IR/2:_reg_T1
-        image = torch.from_numpy(imgs[2])
+        # 选输入图片类型 ～～0:_FLAIR/1:_reg_IR/2:_reg_T1～～
+        image = torch.from_numpy(imgs[0])
         label = torch.from_numpy(label)
         
         #Convert uint8 to float tensors

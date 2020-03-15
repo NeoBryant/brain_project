@@ -24,29 +24,34 @@ model_name = 'unet_0.pt' # 待保存的模型名
 device = param.device # 选择cpu
 
 # 打印记录训练超参数
-
+print("类别数:{}\nEpoch:{}\nLearning_rate:{}\nlatent_dim:{}".format(class_num,
+                                                                    epochs,
+                                                                    learning_rate,
+                                                                    latent_dim))
+print("待保存模型名称: {}".format(model_name))
 
 # 数据集
 dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-                          folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'],
+                          folders=['1_img', '5_img', '7_img', '4_img', '14_img', '148_img', '070_img'],
                           class_num=class_num,
-                          file_names=['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png'])
+                          file_names=['_reg_T1.png', '_segm.png'])
 
 # 数据划分并设置sampler（（固定训练集和测试集））
 dataset_size = len(dataset)  # 数据集大小
-split = param.split
-indices = param.indices
-train_indices, test_indices = indices[split:], indices[:split] # 用上述所有数据训练
+# split = param.split
+# indices = param.indices
+# train_indices, test_indices = indices[split:], indices[:split] # 用上述所有数据训练
+train_indices = list(range(dataset_size))
 
 train_sampler = SubsetRandomSampler(train_indices)
-test_sampler = SubsetRandomSampler(test_indices)
+# test_sampler = SubsetRandomSampler(test_indices)
 
 # 数据加载器
 train_loader = DataLoader(dataset, batch_size=train_batch_size, sampler=train_sampler) # 训练
 train_eval_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=train_sampler) # 评估
-test_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=test_sampler) # 评估
+# test_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=test_sampler) # 评估
 # print("Number of training/test patches:", (len(train_indices),len(test_indices)))
-print("Number of training/test patches: {}/{}".format(len(train_indices),len(test_indices)))
+print("Number of training patches: {}".format(len(train_indices)))
 
 # 网络模型
 net = ProbabilisticUnet(input_channels=1, 
@@ -92,7 +97,7 @@ try:
         losses /= (step+1)
         print("Loss (Train): {}".format(losses))
         evaluate(net, train_eval_loader, device, class_num, test=False)     
-        evaluate(net, test_loader, device, class_num, test=True)        
+        # evaluate(net, test_loader, device, class_num, test=True)        
 except KeyboardInterrupt as e:
     print('KeyboardInterrupt: {}'.format(e))
 except Exception as e:

@@ -19,12 +19,12 @@ import param
 # 参数
 class_num = param.class_num # 选择分割类别数
 predict_time = 16 # 每张图预测次数,(1,4,8,16)
-latent_dim = 2 # 隐空间维度
+latent_dim = 6 # 隐空间维度
 
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'unet_epoch_100_c9_ld2.pt' # 加载模型名称
+model_name = 'unet_epoch_100_c9_ld6.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
@@ -47,23 +47,24 @@ dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
                           '070_Brats17_CBICA_AAB_1_img',
                           '14_Brats17_CBICA_AAB_1_img'],
                           class_num=class_num,
-                          file_names=['_FLAIR.png', '_orgin.png', '_reg_T1.png', '_segm.png'])
+                          file_names=['_reg_T1.png', '_segm.png'])
 
 
 # 数据划分并设置sampler（（固定训练集和测试集））
 dataset_size = len(dataset)  # 数据集大小
-split = param.split # 划分
-indices = param.indices # 数据选择
-train_indices, test_indices = indices[split:], indices[:split]
+# split = param.split # 划分
+# indices = param.indices # 数据选择
+# train_indices, test_indices = indices[split:], indices[:split]
 # train_indices, test_indices = indices[:], indices[:]
+test_indices = list(range(dataset_size))
 
-train_sampler = SequentialSampler(train_indices)
+# train_sampler = SequentialSampler(train_indices)
 test_sampler = SequentialSampler(test_indices)
 
 # 数据加载器
-train_loader = DataLoader(dataset, batch_size=train_batch_size, sampler=train_sampler)
+# train_loader = DataLoader(dataset, batch_size=train_batch_size, sampler=train_sampler)
 test_loader = DataLoader(dataset, batch_size=test_batch_size, sampler=test_sampler)
-print("Number of training/test patches: {}/{}".format(len(train_indices),len(test_indices)))
+print("Number of test patches: {}".format(len(test_indices)))
 
 # 加载已经训练好的网络进行预测
 model = ProbabilisticUnet(input_channels=1, 

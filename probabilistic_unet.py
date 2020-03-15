@@ -305,6 +305,8 @@ class ProbabilisticUnet(nn.Module):
         计算后验KL(Q||P)和先验KL(Q||P)之间的KL散度
         分析：通过分析或通过后验采样来计算KL
         compute_posterior：如果我们使用samapling来近似KL，则可以在此处采样或提供样本
+        
+        KL散度：用来衡量两个概率分布之间的差异
 
         Calculate the KL divergence between the posterior and prior KL(Q||P)
         analytic: calculate KL analytically or via sampling from the posterior
