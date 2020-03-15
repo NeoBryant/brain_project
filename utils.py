@@ -125,9 +125,16 @@ def cal_variance(image_np, label_np, mask_pros, mask_pres, class_num, series_uid
     mask_pres = np.array(mask_pres)   # (m,class_num,240,240)
     variance_result = np.var(mask_pres, axis=0)
     variance_result = np.sum(variance_result, axis=0)
-
+    
+    # 熵
+    eps = 0.0001
+    sample = np.mean(mask_pres,axis=0)  # (class_num,240,240)
+    sample += eps
+    entropy = -np.sum(sample * np.log(sample), axis=0) # (240,240)
+    
     # 保存原图、标签、和m张预测结果
-    save_8_pred_img(image_np, label_np, variance_result, mask_pros, class_num, series_uid)
+    save_8_pred_img(image_np, label_np, variance_result,
+                    mask_pros, entropy, class_num, series_uid)
     
     # 保存原图、标签、和方差
     # save_variance_img(image_np, mask2rgb(label_np), variance_result,series_uid)
@@ -156,7 +163,7 @@ def save_variance_img(orig, mask, var, series_uid):
     plt.close()
 
 
-def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
+def save_8_pred_img(orig, mask, var, pred, entropy, class_num, series_uid):
     """保存原图、标签、8个预测结果进行对比
     orig:(240,240)
     mask:(240,240),元素值0-9
@@ -169,6 +176,7 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     # 设置每张子图的标题
     ax[0][0].set_title("Original")
     ax[0][1].set_title("Ground Truth")
+    ax[0][2].set_title("Entropy")
     ax[0][3].set_title("variance")
     for i in range(4):
         ax[1][i].set_title("predict_{}".format(i))
@@ -179,7 +187,9 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     # 设置每张子图显示内容
     ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
     ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax02 = ax[0][2].imshow(entropy, aspect="auto", cmap="jet", vmin=0, vmax=2)
     ax03 = ax[0][3].imshow(var, aspect="auto", cmap="jet")
+
     # for i in range(4):
     ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=9)
     ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=9)
@@ -201,6 +211,7 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     # color bar
     fig.colorbar(ax00, ax=ax[0][0])
     fig.colorbar(ax01, ax=ax[0][1])
+    fig.colorbar(ax02, ax=ax[0][2])
     fig.colorbar(ax03, ax=ax[0][3])
     fig.colorbar(ax10, ax=ax[1][0])
     fig.colorbar(ax11, ax=ax[1][1])

@@ -19,23 +19,34 @@ import param
 # 参数
 class_num = param.class_num # 选择分割类别数
 predict_time = 16 # 每张图预测次数,(1,4,8,16)
+latent_dim = 2 # 隐空间维度
 
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'unet_epoch_100_c9.pt' # 加载模型名称
+model_name = 'unet_epoch_100_c9_ld2.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
+# dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
+#                           '1_img', 
+#                           '5_img', 
+#                           '7_img', 
+#                           '4_img', 
+#                           '148_img', 
+#                           '070_img', 
+#                           '14_img'], 
+#                           class_num=class_num, 
+#                           file_names=['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png'])
 dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
-                          '1_Brats17_CBICA_AAB_1_img', 
-                          '5_Brats17_CBICA_AAB_1_img', 
-                          '7_Brats17_CBICA_AAB_1_img', 
-                          '4_Brats17_CBICA_AAB_1_img', 
-                          '148_Brats17_CBICA_AAB_1_img', 
-                          '070_Brats17_CBICA_AAB_1_img', 
-                          '14_Brats17_CBICA_AAB_1_img'], 
-                          class_num=class_num, 
+                          '1_Brats17_CBICA_AAB_1_img',
+                          '5_Brats17_CBICA_AAB_1_img',
+                          '7_Brats17_CBICA_AAB_1_img',
+                          '4_Brats17_CBICA_AAB_1_img',
+                          '148_Brats17_CBICA_AAB_1_img',
+                          '070_Brats17_CBICA_AAB_1_img',
+                          '14_Brats17_CBICA_AAB_1_img'],
+                          class_num=class_num,
                           file_names=['_FLAIR.png', '_orgin.png', '_reg_T1.png', '_segm.png'])
 
 
@@ -44,6 +55,7 @@ dataset_size = len(dataset)  # 数据集大小
 split = param.split # 划分
 indices = param.indices # 数据选择
 train_indices, test_indices = indices[split:], indices[:split]
+# train_indices, test_indices = indices[:], indices[:]
 
 train_sampler = SequentialSampler(train_indices)
 test_sampler = SequentialSampler(test_indices)
@@ -57,7 +69,7 @@ print("Number of training/test patches: {}/{}".format(len(train_indices),len(tes
 model = ProbabilisticUnet(input_channels=1, 
                         num_classes=class_num, 
                         num_filters=[32,64,128,192], 
-                        latent_dim=2, 
+                          latent_dim=latent_dim,
                         no_convs_fcomb=4, 
                         beta=10.0)
 net = load_model(model=model, 
@@ -96,8 +108,8 @@ with torch.no_grad():
 
         # 计算均值和方差,并保存相应图片
         cal_variance(image_np, label_np, mask_pros, mask_pres, class_num, series_uid)  
-        
+
     # 评估
     print("Evaluating ...")
-    evaluate(net, train_loader, device, class_num, test=False)     
+    # evaluate(net, train_loader, device, class_num, test=False)     
     evaluate(net, test_loader, device, class_num, test=True)   

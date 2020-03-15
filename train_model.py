@@ -15,12 +15,16 @@ import param
 class_num = param.class_num # 选择分割类别数
 epochs = 100  # 训练周期
 learning_rate = 1e-4 # 学习率
+latent_dim = 6 # 隐空间维度
 
-train_batch_size = 8 # 训练
+train_batch_size = 16 # 训练
 test_batch_size = 1 # 预测
 
-model_name = 'unet_2.pt' # 待保存的模型名
+model_name = 'unet_0.pt' # 待保存的模型名
 device = param.device # 选择cpu
+
+# 打印记录训练超参数
+
 
 # 数据集
 dataset = BrainS18Dataset(root_dir='data/BrainS18', 
@@ -32,7 +36,7 @@ dataset = BrainS18Dataset(root_dir='data/BrainS18',
 dataset_size = len(dataset)  # 数据集大小
 split = param.split
 indices = param.indices
-train_indices, test_indices = indices[split:], indices[:split]
+train_indices, test_indices = indices[split:], indices[:split] # 用上述所有数据训练
 
 train_sampler = SubsetRandomSampler(train_indices)
 test_sampler = SubsetRandomSampler(test_indices)
@@ -48,7 +52,7 @@ print("Number of training/test patches: {}/{}".format(len(train_indices),len(tes
 net = ProbabilisticUnet(input_channels=1, 
                         num_classes=class_num, 
                         num_filters=[32,64,128,192], 
-                        latent_dim=2, 
+                        latent_dim=latent_dim, 
                         no_convs_fcomb=4, 
                         beta=10.0)
 net.to(device)

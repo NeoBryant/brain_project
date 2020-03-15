@@ -3,7 +3,7 @@
 import torch
 
 # gpu选择
-device = torch.device('cuda:7' if torch.cuda.is_available() else 'cpu') # 选择cpu
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') # 选择cpu
 
 # 数据选择
 # dataset_size = len(dataset)  # 数据集大小
@@ -19,5 +19,5 @@ split = 48 # 后6个病人为训练集，第一个病人为测试集
 
 # 超参数
 class_num = 9 # 选择分割类别数
-
+latent_dim = 6 # 隐空间维度
 

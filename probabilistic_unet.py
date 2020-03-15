@@ -61,7 +61,7 @@ class Encoder(nn.Module):
 
 class AxisAlignedConvGaussian(nn.Module):
     """
-    用轴对齐协方差矩阵对高斯分布进行参数化的卷积网。
+    用轴对齐协方差矩阵对高斯分布进行参数化的卷积网路。
     A convolutional net that parametrizes a Gaussian distribution with axis aligned covariance matrix.
     """
     def __init__(self, input_channels, num_filters, no_convs_per_block, latent_dim, initializers, posterior=False):
