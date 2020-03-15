@@ -94,41 +94,45 @@ def mask2rgb(mask, class_num=10):
     return img
 
 
-def cal_variance(image_np, label_np, mask_pros, class_num, series_uid):
+def cal_variance(image_np, label_np, mask_pros, mask_pres, class_num, series_uid):
     """计算多个预测结果的方差
     image_np:(240,240)
     label_np:(240,240),元素值0-8
-    mask_pros:(m,240,240),k为预测次数,元素值0-8
+    mask_pres:(m,class_num,240,240),元素值为预测结果, np
+    mask_pros:(m,240,240),m为预测次数,元素值0-8, list(np)
     class_num: 分割任务类别数
     series_uid: 每张图片的序列号，list，[病人，张数]
     """
     m = len(mask_pros) # 预测结果（次）数
     h, w = image_np.shape # 图片高宽
     
-    mean_result = np.zeros((h, w))      # 均值
-    variance_result = np.zeros((h, w))  # 方差
-
-    # 方法二（对预测正确的，对0/1求方差）
-    mask_pros_temp = [np.zeros((240, 240)) for i in range(m)] # 记录预测正确的像素点设为1
-    for i in range(m):
-        mask_pros_temp[i] = (mask_pros[i]==label_np)
-    # 计算均值
-    for i in range(m):
-        mean_result += mask_pros_temp[i]
-    mean_result /= m
-    # 计算方差
-    for i in range(m):
-        variance_result += np.square(mean_result - mask_pros_temp[i])
-    variance_result /= m
+    ## 方法二（对预测正确的，对0/1求方差）
+    # mean_result = np.zeros((h, w))      # 均值
+    # variance_result = np.zeros((h, w))  # 方差
+    # mask_pros_temp = [np.zeros((240, 240)) for i in range(m)] # 记录预测正确的像素点设为1
+    # for i in range(m):
+    #     mask_pros_temp[i] = (mask_pros[i]==label_np)
+    # # 计算均值
+    # for i in range(m):
+    #     mean_result += mask_pros_temp[i]
+    # mean_result /= m
+    # # 计算方差
+    # for i in range(m):
+    #     variance_result += np.square(mean_result - mask_pros_temp[i])
+    # variance_result /= m
+    
+    ## 方法三
+    mask_pres = np.array(mask_pres)   # (m,class_num,240,240)
+    variance_result = np.var(mask_pres, axis=0)
+    variance_result = np.sum(variance_result, axis=0)
 
     # 保存原图、标签、和m张预测结果
-    # save_8_pred_img(image_np, mask2rgb(label_np), variance_result, mask_pros, class_num, series_uid)
     save_8_pred_img(image_np, label_np, variance_result, mask_pros, class_num, series_uid)
+    
     # 保存原图、标签、和方差
     # save_variance_img(image_np, mask2rgb(label_np), variance_result,series_uid)
 
     return 
-
 
 
 def save_variance_img(orig, mask, var, series_uid):
@@ -158,8 +162,9 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     mask:(240,240),元素值0-9
     pred:(k,240,240),k为预测次数,元素值0-9
     """
-    fig, ax = plt.subplots(3, 4, sharey=True, figsize=(24, 15))
-    cmap = plt.cm.get_cmap('Paired', class_num)    # 10 discrete colors,tab10
+    m = len(pred)
+    fig, ax = plt.subplots(5, 4, sharey=True, figsize=(24, 25))
+    cmap = plt.cm.get_cmap('tab10', 10)    # 10 discrete colors,tab10,Paired
 
     # 设置每张子图的标题
     ax[0][0].set_title("Original")
@@ -168,20 +173,30 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     for i in range(4):
         ax[1][i].set_title("predict_{}".format(i))
         ax[2][i].set_title("predict_{}".format(i+4))
+        ax[3][i].set_title("predict_{}".format(i+8))
+        ax[4][i].set_title("predict_{}".format(i+12))
     
     # 设置每张子图显示内容
     ax00 = ax[0][0].imshow(orig, aspect="auto", cmap="gray")
-    ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax03 = ax[0][3].imshow(var, aspect="auto", cmap="gist_heat")
+    ax01 = ax[0][1].imshow(mask, cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax03 = ax[0][3].imshow(var, aspect="auto", cmap="jet")
     # for i in range(4):
-    ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax12 = ax[1][2].imshow(pred[2], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax13 = ax[1][3].imshow(pred[3], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax20 = ax[2][0].imshow(pred[4], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax21 = ax[2][1].imshow(pred[5], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax22 = ax[2][2].imshow(pred[6], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
-    ax23 = ax[2][3].imshow(pred[7], cmap=cmap, aspect="auto", vmin=0, vmax=class_num-1)
+    ax10 = ax[1][0].imshow(pred[0], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax11 = ax[1][1].imshow(pred[1], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax12 = ax[1][2].imshow(pred[2], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax13 = ax[1][3].imshow(pred[3], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax20 = ax[2][0].imshow(pred[4], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax21 = ax[2][1].imshow(pred[5], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax22 = ax[2][2].imshow(pred[6], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax23 = ax[2][3].imshow(pred[7], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax30 = ax[3][0].imshow(pred[8], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax31 = ax[3][1].imshow(pred[9], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax32 = ax[3][2].imshow(pred[10], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax33 = ax[3][3].imshow(pred[11], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax40 = ax[4][0].imshow(pred[12], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax41 = ax[4][1].imshow(pred[13], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax42 = ax[4][2].imshow(pred[14], cmap=cmap, aspect="auto", vmin=0, vmax=9)
+    ax43 = ax[4][3].imshow(pred[15], cmap=cmap, aspect="auto", vmin=0, vmax=9)
 
     # color bar
     fig.colorbar(ax00, ax=ax[0][0])
@@ -195,12 +210,20 @@ def save_8_pred_img(orig, mask, var, pred, class_num, series_uid):
     fig.colorbar(ax21, ax=ax[2][1])
     fig.colorbar(ax22, ax=ax[2][2])
     fig.colorbar(ax23, ax=ax[2][3])
+    fig.colorbar(ax30, ax=ax[3][0])
+    fig.colorbar(ax31, ax=ax[3][1])
+    fig.colorbar(ax32, ax=ax[3][2])
+    fig.colorbar(ax33, ax=ax[3][3])    
+    fig.colorbar(ax40, ax=ax[4][0])
+    fig.colorbar(ax41, ax=ax[4][1])
+    fig.colorbar(ax42, ax=ax[4][2])
+    fig.colorbar(ax43, ax=ax[4][3])
 
     # 不显示刻度尺、标
-    for i in range(3):
+    for i in range(5):
         for j in range(4):    
             ax[i][j].axis('off')
     
     fig.suptitle('patient {} - slice {}'.format(series_uid[0][0], series_uid[1][0]))
-    plt.savefig('picture/c{}_p{}_s{}_pre8.jpg'.format(class_num, series_uid[0][0], series_uid[1][0]))
+    plt.savefig('picture/c{}_p{}_s{}_pre{}.jpg'.format(class_num, series_uid[0][0], series_uid[1][0], m))
     plt.close()

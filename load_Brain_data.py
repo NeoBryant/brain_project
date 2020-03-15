@@ -24,10 +24,10 @@ import os
 
 
 class BrainS18Dataset(Dataset):
-    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'], class_num=10):
+    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img', '7_img', '4_img', '148_img', '070_img', '14_img'], class_num=9, file_names=['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png']):
         print('Preparing BrainS18Dataset {} ... '.format(folders), end='')
 
-        self.file_names = ['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png']
+        self.file_names = file_names
         self.mean_std = {}  # mean and std of a volume
         self.img_paths = [] # e.g. './datasets/BrainS18/14/2'
         self._prepare_dataset(root_dir, folders) # 准备数据集
@@ -42,7 +42,7 @@ class BrainS18Dataset(Dataset):
             paths = [os.path.join(root_dir, folder, str(i)) for i in range(48)]
             self.img_paths += paths
             self.mean_std[folder] = {}
-            for file_name in ['_FLAIR.png', '_reg_IR.png', '_reg_T1.png']:
+            for file_name in self.file_names[:-1]:
                 volume = np.array([mpimg.imread(path + file_name) for path in paths])
                 self.mean_std[folder][file_name] = [volume.mean(), volume.std()]
     
@@ -59,7 +59,7 @@ class BrainS18Dataset(Dataset):
         imgs = [mpimg.imread(self.img_paths[index] + fn).reshape((1, 240, 240)) for fn in self.file_names]
 
         # normalization
-        for i in range(3):
+        for i in range(len(self.file_names)-1):
             # e.g. mean_std = {'_FLAIR.png': [0.14819147, 0.22584382], 
             #                  '_reg_IR.png': [0.740661, 0.18219014], 
             #                  '_reg_T1.png': [0.1633398, 0.25954548]}
@@ -70,7 +70,11 @@ class BrainS18Dataset(Dataset):
         # 标签
         label = imgs[3].reshape((1,240,240))
         label *= 255 # 元素值变为0-9
+        # 将标签为9的变为1
+        label[label==9] = 1
+        
         label += 1 # 加入背景类，元素值变为1-10
+
         
         # 选输入图片类型 0:_FLAIR/1:_reg_IR/2:_reg_T1
         image = torch.from_numpy(imgs[2])

@@ -18,6 +18,6 @@ indices = [i for i in range(336)]
 split = 48 # 后6个病人为训练集，第一个病人为测试集
 
 # 超参数
-class_num = 10 # 选择分割类别数
+class_num = 9 # 选择分割类别数
 
 
