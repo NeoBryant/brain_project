@@ -28,27 +28,13 @@ model_name = 'unet_epoch_100_c9_ld6.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
-# dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
-#                           '1_img', 
-#                           '5_img', 
-#                           '7_img', 
-#                           '4_img', 
-#                           '148_img', 
-#                           '070_img', 
-#                           '14_img'], 
+# dataset = BrainS18Dataset(root_dir='data/BrainS18', 
+#                           folders=['1_img'], 
 #                           class_num=class_num, 
-#                           file_names=['_FLAIR.png', '_reg_IR.png', '_reg_T1.png', '_segm.png'])
-dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=[
-                          '1_Brats17_CBICA_AAB_1_img',
-                          '5_Brats17_CBICA_AAB_1_img',
-                          '7_Brats17_CBICA_AAB_1_img',
-                          '4_Brats17_CBICA_AAB_1_img',
-                          '148_Brats17_CBICA_AAB_1_img',
-                          '070_Brats17_CBICA_AAB_1_img',
-                          '14_Brats17_CBICA_AAB_1_img'],
+#                           file_names=['_reg_T1.png', '_segm.png'])
+dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=['1_Brats17_CBICA_AAB_1_img'],
                           class_num=class_num,
                           file_names=['_reg_T1.png', '_segm.png'])
-
 
 # 数据划分并设置sampler（（固定训练集和测试集））
 dataset_size = len(dataset)  # 数据集大小

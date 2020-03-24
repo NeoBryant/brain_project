@@ -9,6 +9,7 @@ import matplotlib.image as mpimg
 import numpy as np
 import os
 
+
 # # 颜色rgb
 # # 黑，红，绿，蓝，黄，淡紫，亮蓝，紫，白
 # color = [(0,0,0),(255,0,0),(0,255,0),(0,0,255),(255,255,0),
@@ -59,7 +60,7 @@ class BrainS18Dataset(Dataset):
         # read imgs
         imgs = [mpimg.imread(self.img_paths[index] + fn).reshape((1, 240, 240)) for fn in self.file_names]
 
-        # normalization
+        # normalization/标准化
         for i in range(len(self.file_names)-1):
             # e.g. mean_std = {'_FLAIR.png': [0.14819147, 0.22584382], 
             #                  '_reg_IR.png': [0.740661, 0.18219014], 
@@ -70,12 +71,14 @@ class BrainS18Dataset(Dataset):
 
         # 标签
         label = imgs[-1].reshape((1,240,240))
-        label *= 255 # 元素值变为0-9
+        label *= 255 # 元素值从小数变为0-9的整数
         # 将标签为9的变为1
-        label[label==9] = 1
+        label[label==9] = 1 # 将标签为9的变为1
         
         label += 1 # 加入背景类，元素值变为1-10
 
+        # 将某些类合并，减少分割的类别数
+        
         
         # 选输入图片类型 ～～0:_FLAIR/1:_reg_IR/2:_reg_T1～～
         image = torch.from_numpy(imgs[0])
@@ -89,21 +92,8 @@ class BrainS18Dataset(Dataset):
 
 if __name__ == "__main__": 
     dataset = BrainS18Dataset()
-    # for i in range(len(dataset)):
-    #     image, label, series_uid = dataset.__getitem__(i)
-    print(len(dataset))
-    count = 0
-    class_ = 11
-    for i in range(len(dataset)):
-        _, label, _ = dataset.__getitem__(i)
-        isFound = False
-        for x in range(240):
-            for y in range(240):
-                if int(label[0, x, y]) == class_:
-                    count += 1
-                    isFound = True
-                    break
-            if isFound:
-                break
-    print("Class {}: {} slice".format(class_-1, count))
-    
+    imgs = np.zeros((48,240,240))
+    for i in range(48):
+        image, label, series_uid = dataset.__getitem__(i)
+        image = image.numpy().reshape(240,240)
+        

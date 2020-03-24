@@ -123,10 +123,11 @@ def evaluate(model, val_loader, device, class_num, test=True):
         dices /= (step+1)
         IoUs /= (step+1)
         if test:
-            print("Test: \n-- Dice: {}\n-- IoU: {}".format(dices.tolist(), IoUs.tolist()))
+            print("Test: \n-- Dice: {},{}\n-- IoU: {},{}".format(np.mean(dices),dices.tolist(), 
+                np.mean(IoUs),IoUs.tolist()))
         else:
-            print(
-                "Train: \n-- Dice: {}\n-- IoU: {}".format(dices.tolist(), IoUs.tolist()))
+            print("Train: \n-- Dice: {},{}\n-- IoU: {},{}".format(np.mean(dices),dices.tolist(), 
+                np.mean(IoUs),IoUs.tolist()))
     
     return dices, IoUs
  

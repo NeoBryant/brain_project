@@ -20,7 +20,7 @@ latent_dim = 6 # 隐空间维度
 train_batch_size = 16 # 训练
 test_batch_size = 1 # 预测
 
-model_name = 'unet_0.pt' # 待保存的模型名
+model_name = 'unet_0.pt' # 待保存的模型名,epoch,patient,classnum_latentdim
 device = param.device # 选择cpu
 
 # 打印记录训练超参数
@@ -32,7 +32,7 @@ print("待保存模型名称: {}".format(model_name))
 
 # 数据集
 dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-                          folders=['1_img', '5_img', '7_img', '4_img', '14_img', '148_img', '070_img'],
+                          folders=['5_img', '7_img', '4_img', '14_img', '148_img', '070_img'],
                           class_num=class_num,
                           file_names=['_reg_T1.png', '_segm.png'])
 
@@ -97,7 +97,6 @@ try:
         losses /= (step+1)
         print("Loss (Train): {}".format(losses))
         evaluate(net, train_eval_loader, device, class_num, test=False)     
-        # evaluate(net, test_loader, device, class_num, test=True)        
 except KeyboardInterrupt as e:
     print('KeyboardInterrupt: {}'.format(e))
 except Exception as e:
