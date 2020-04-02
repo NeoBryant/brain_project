@@ -25,7 +25,7 @@ import os
 
 
 class BrainS18Dataset(Dataset):
-    def __init__(self, root_dir='data/BrainS18', folders=['1_img', '5_img'], class_num=9, file_names=['_reg_T1.png', '_segm.png']):
+    def __init__(self, root_dir='data/BrainS18', folders=['1_img'], class_num=9, file_names=['_reg_T1.png', '_segm.png']):
         print('Preparing BrainS18Dataset {} ... '.format(folders), end='')
 
         self.file_names = file_names
@@ -87,6 +87,9 @@ class BrainS18Dataset(Dataset):
         #Convert uint8 to float tensors
         image = image.type(torch.FloatTensor)
         label = label.type(torch.FloatTensor)
+
+        # 对于加病灶的图片进行flip
+
 
         return image, label, series_uid
 

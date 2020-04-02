@@ -24,7 +24,7 @@ latent_dim = 6 # 隐空间维度
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'unet_epoch_100_c9_ld6.pt' # 加载模型名称
+model_name = 'unet_e100_p6_c9_ld6.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
