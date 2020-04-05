@@ -20,7 +20,7 @@ latent_dim = 6 # 隐空间维度
 train_batch_size = 16 # 训练
 test_batch_size = 1 # 预测
 
-model_name = 'punet_e128_c9_ld6_f070.pt' # 待保存的模型名,epoch,patient,classnum_latentdim
+model_name = 'punet_e128_c9_ld6_f.pt' # 待保存的模型名,epoch,patient,classnum_latentdim
 device = param.device # 选择cpu
 
 

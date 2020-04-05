@@ -25,18 +25,18 @@ latent_dim = 6 # 隐空间维度
 train_batch_size = 1 # 预测
 test_batch_size = 1 # 预测
 
-model_name = 'punet_e128_c9_ld6_f7.pt' # 加载模型名称
+model_name = 'punet_e128_c9_ld6_f070.pt' # 加载模型名称
 device = param.device # 选gpu
 
 # 选择数据集
-dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-                          folders=['7_img'], 
-                          class_num=class_num, 
-                          file_names=['_reg_T1.png', '_segm.png'])
 # dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-#                           folders=['1_img','4_img','5_img','14_img','070_img','148_img',], 
+#                           folders=['070_img'], 
 #                           class_num=class_num, 
 #                           file_names=['_reg_T1.png', '_segm.png'])
+dataset = BrainS18Dataset(root_dir='data/BrainS18', 
+                          folders=['1_img','4_img','5_img','7_img','14_img','148_img',], 
+                          class_num=class_num, 
+                          file_names=['_reg_T1.png', '_segm.png'])
 
 
 # dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=['4_Brats17_CBICA_AAB_1_img'],
