@@ -20,7 +20,7 @@ latent_dim = 6 # 隐空间维度
 train_batch_size = 16 # 训练
 test_batch_size = 1 # 预测
 
-model_name = 'punet_e128_c9_ld2_f5.pt' # 待保存的模型名,epoch,patient,classnum_latentdim
+model_name = 'punet_e128_c9_ld6_f070.pt' # 待保存的模型名,epoch,patient,classnum_latentdim
 device = param.device # 选择cpu
 
 
@@ -33,7 +33,7 @@ print("待保存模型名称: {}".format(model_name))
 
 # 数据集
 dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-                          folders=['1_img', '4_img', '7_img', '14_img', '148_img', '070_img'],
+                          folders=['1_img', '4_img', '5_img', '7_img', '14_img', '148_img'],
                           class_num=class_num,
                           file_names=['_reg_T1.png', '_segm.png'])
 

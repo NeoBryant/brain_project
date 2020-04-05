@@ -2,6 +2,8 @@
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+import torchvision.transforms as transforms
+import torchvision.transforms.functional as TF
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -54,7 +56,6 @@ class BrainS18Dataset(Dataset):
 
     def __getitem__(self, index):
         folder = self.img_paths[index].split('/')[-2]
-        
         series_uid = self.img_paths[index].split('/')[-2:]
 
         # read imgs
@@ -68,7 +69,7 @@ class BrainS18Dataset(Dataset):
             mean = self.mean_std[folder][self.file_names[i]][0]
             std = self.mean_std[folder][self.file_names[i]][1]
             imgs[i] = (imgs[i] - mean) / std
-
+        
         # 标签
         label = imgs[-1].reshape((1,240,240))
         label *= 255 # 元素值从小数变为0-9的整数
@@ -85,12 +86,9 @@ class BrainS18Dataset(Dataset):
         label = torch.from_numpy(label)
         
         #Convert uint8 to float tensors
-        image = image.type(torch.FloatTensor)
-        label = label.type(torch.FloatTensor)
-
-        # 对于加病灶的图片进行flip
-
-
+        image = image.type(torch.FloatTensor) # (1,240,240)
+        label = label.type(torch.FloatTensor)  # (1,240,240)
+        
         return image, label, series_uid
 
 if __name__ == "__main__": 
@@ -99,4 +97,4 @@ if __name__ == "__main__":
     for i in range(48):
         image, label, series_uid = dataset.__getitem__(i)
         image = image.numpy().reshape(240,240)
-        
+
