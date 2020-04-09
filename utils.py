@@ -133,13 +133,13 @@ def cal_variance(image_np, label_np, mask_pros, mask_pres, class_num, series_uid
     entropy = -np.sum(sample * np.log(sample), axis=0) # (240,240)
     
     # 保存原图、标签、和m张预测结果
-    save_8_pred_img(image_np, label_np, variance_result,
-                    mask_pros, entropy, class_num, series_uid)
+    # save_8_pred_img(image_np, label_np, variance_result,
+    #                 mask_pros, entropy, class_num, series_uid)
     
     # 保存原图、标签、和方差
     # save_variance_img(image_np, mask2rgb(label_np), variance_result,series_uid)
 
-    return 
+    return entropy, variance_result
 
 
 def save_variance_img(orig, mask, var, series_uid):

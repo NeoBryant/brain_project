@@ -33,15 +33,15 @@ device = param.device # 选gpu
 #                           folders=['070_img'], 
 #                           class_num=class_num, 
 #                           file_names=['_reg_T1.png', '_segm.png'])
-dataset = BrainS18Dataset(root_dir='data/BrainS18', 
-                          folders=['1_img','4_img','5_img','7_img','14_img','148_img',], 
-                          class_num=class_num, 
-                          file_names=['_reg_T1.png', '_segm.png'])
-
-
-# dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=['4_Brats17_CBICA_AAB_1_img'],
-#                           class_num=class_num,
+# dataset = BrainS18Dataset(root_dir='data/BrainS18', 
+#                           folders=['1_img','4_img','5_img','7_img','14_img','148_img',], 
+#                           class_num=class_num, 
 #                           file_names=['_reg_T1.png', '_segm.png'])
+
+
+dataset = BrainS18Dataset(root_dir='data/BrainS18', folders=['070_Brats17_CBICA_AAB_1_img'],
+                          class_num=class_num,
+                          file_names=['_reg_T1.png', '_segm.png'])
 
 # 数据划分并设置sampler（（固定训练集和测试集））
 dataset_size = len(dataset)  # 数据集大小
